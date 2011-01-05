@@ -475,7 +475,7 @@
 		[aContact release];	
 	} // end of if !bIsError
 	if (bIsError && jsErrCallback){
-		jsString = [NSString stringWithFormat:@"%@(%@);", jsErrCallback, errCode];
+		jsString = [NSString stringWithFormat:@"%@(%d);", jsErrCallback, errCode];
 	}
 	[webView stringByEvaluatingJavaScriptFromString:jsString];
 
