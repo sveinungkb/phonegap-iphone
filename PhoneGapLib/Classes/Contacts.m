@@ -463,7 +463,7 @@
 				// give original dictionary back?  If generate dictionary from saved contact, have no returnFields specified
 				// so would give back all fields (which W3C spec. indicates is not desired)
 				// for now (while testing) give back saved, full contact
-				NSMutableDictionary* newContact = [aContact toDictionary: nil];
+				NSMutableDictionary* newContact = [aContact toDictionary: [Contact defaultFields] ];
 				NSString* contactStr = [newContact JSONRepresentation];
 				jsString = [NSString stringWithFormat: @"%@(%@);", @"navigator.service.contacts._contactCallback", contactStr];
 			}
