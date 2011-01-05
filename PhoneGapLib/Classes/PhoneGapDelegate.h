@@ -70,6 +70,5 @@
 + (NSString*) phoneGapVersion;
 + (NSString*) applicationDocumentsDirectory;
 + (NSString*) tmpFolderName;
-+ (NSString*) startPage;
 
 @end

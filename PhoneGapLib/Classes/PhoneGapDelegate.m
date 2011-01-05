@@ -43,11 +43,6 @@
 	return @"www";
 }
 
-+ (NSString*) startPage
-{
-	return @"index.html";
-}
-
 + (NSString*) pathForResource:(NSString*)resourcepath
 {
     NSBundle * mainBundle = [NSBundle mainBundle];
@@ -233,12 +228,15 @@ static NSString *gapVersion;
 	 * webView
 	 * This is where we define the inital instance of the browser (WebKit) and give it a starting url/file.
 	 */
+	NSURL * appURL = nil;
 	
-	NSString* startPage = [[self class] startPage];
-	NSURL *appURL = [NSURL URLWithString:startPage];
-	if(![appURL scheme])
-	{
-		appURL = [NSURL fileURLWithPath:[[self class] pathForResource:startPage]];
+	// Check for URL in PhoneGap.plist
+	if ([settings objectForKey:@"StartURL"]) {
+		appURL = [NSURL URLWithString:[settings objectForKey:@"StartURL"]];
+	}
+	// Use default (www/index.html)
+	else {
+		appURL = [NSURL fileURLWithPath:[[self class] pathForResource:@"index.html"]];
 	}
 	
     NSURLRequest *appReq = [NSURLRequest requestWithURL:appURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:20.0];
@@ -492,6 +490,7 @@ static NSString *gapVersion;
 	
 	// construct the fill method name to ammend the second argument.
 	NSString* fullMethodName = [[NSString alloc] initWithFormat:@"%@:withDict:", command.methodName];
+	NSLog(@"PhoneGapDelegate::Execute className: %@ methodName: %@", command.className, command.methodName);
 	if ([obj respondsToSelector:NSSelectorFromString(fullMethodName)]) {
 		[obj performSelector:NSSelectorFromString(fullMethodName) withObject:command.arguments withObject:command.options];
 	}
