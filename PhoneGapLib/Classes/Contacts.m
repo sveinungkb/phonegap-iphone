@@ -246,12 +246,15 @@
 		
 		[peoplePicker pushViewController:personController animated:YES];
 	} else {
-		// return the contact Id
+		// return the Contact as JS Contact
 		
-		
-		NSString* jsString = [NSString stringWithFormat:@"%@(%d);", picker.jsCallback, contactId];
-		[webView stringByEvaluatingJavaScriptFromString:jsString];
+		Contact * contact = [[Contact alloc] initFromABRecord:person];
 
+		NSString* jsString = [NSString stringWithFormat:@"%@(%@);", picker.jsCallback, [[contact toDictionary:[Contact defaultFields]] JSONRepresentation]];
+
+		[webView stringByEvaluatingJavaScriptFromString:jsString];
+		[contact release];
+		
 		[picker dismissModalViewControllerAnimated:YES];
 	}
 	return NO;
@@ -267,10 +270,28 @@
 {
 	// return contactId or invalid if none picked
 	ContactsPicker* picker = (ContactsPicker*)peoplePicker;
-	NSString* jsString = [NSString stringWithFormat:@"%@(%d);", picker.jsCallback, picker.selectedId];
+	
+	NSMutableDictionary * contactAsDictionary = nil;
+	
+	// W3C ContactSuccessCB should never be null, and at least contain the ID of the contact according to spec
+	if(picker.selectedId == kABRecordInvalidID){
+		// Minimal JS Contact representation for invalid contact
+		contactAsDictionary = [[NSMutableDictionary dictionaryWithCapacity:1] retain];  // new contact dictionary to fill in from ABRecordRef
+		[contactAsDictionary setObject: [NSNumber numberWithInt:kABRecordInvalidID] forKey:kW3ContactId];
+	}
+	else {
+		// Contact --> JS Contact
+		ABAddressBookRef addrBook = ABAddressBookCreate();	
+		Contact * pickedContact = [[Contact alloc] initFromABRecord:ABAddressBookGetPersonWithRecordID(addrBook, picker.selectedId)];
+		contactAsDictionary = [[pickedContact toDictionary:[Contact defaultFields]] retain];
+		CFRelease(addrBook);
+	}
+	
+	NSString* jsString = [NSString stringWithFormat:@"%@(%@);", picker.jsCallback, [contactAsDictionary JSONRepresentation]];
 	[webView stringByEvaluatingJavaScriptFromString:jsString];
 	
 	[peoplePicker dismissModalViewControllerAnimated:YES]; 
+	[contactAsDictionary release];
 }
 
 - (void) search:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
