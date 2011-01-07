@@ -270,9 +270,11 @@ static NSString *gapVersion;
 	 */
 	UIImage* image = [[UIImage alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Default" ofType:@"png"]];
 	imageView = [[UIImageView alloc] initWithImage:image];
+
 	[image release];
 	
     imageView.tag = 1;
+	imageView.frame = [[UIScreen mainScreen] applicationFrame];
 	[window addSubview:imageView];
 	[imageView release];
 
