@@ -4,6 +4,7 @@
  * 
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
+ * Copyright (c) 2011, Giant Leap Technologies AS
  */
 
 #import "PhoneGapDelegate.h"
@@ -11,6 +12,7 @@
 #import <UIKit/UIKit.h>
 #import "Movie.h"
 #import "InvokedUrlCommand.h"
+#import "Availability.h"
 
 @implementation PhoneGapDelegate
 
@@ -145,9 +147,11 @@ static NSString *gapVersion;
 	
 	viewController = [ [ PhoneGapViewController alloc ] init ];
 	
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
-    NSNumber *detectNumber         = [settings objectForKey:@"DetectPhoneNumber"];
-#endif
+	BOOL detectPhoneNumber = [[settings objectForKey:@"DetectPhoneNumber"] boolValue];
+	BOOL detectLink = [[settings objectForKey:@"DetectLink"] boolValue];
+	BOOL detectAddress = [[settings objectForKey:@"DetectAddress"] boolValue];
+	BOOL detectCalendarEvent = [[settings objectForKey:@"DetectCalendarEvent"] boolValue];
+
     NSNumber *useLocation          = [settings objectForKey:@"UseLocation"];
     NSString *topActivityIndicator = [settings objectForKey:@"TopActivityIndicator"];
 	
@@ -240,12 +244,26 @@ static NSString *gapVersion;
 	}
 	
     NSURLRequest *appReq = [NSURLRequest requestWithURL:appURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:20.0];
-	[webView loadRequest:appReq];
+	[webView loadRequest:appReq]; 
+	
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0
+	webView.detectsPhoneNumbers = detectPhoneNumber;
+#else
+	// Create bitmask for data detector types
+	unsigned mask = UIDataDetectorTypeNone;
+	if(detectPhoneNumber)
+		mask = mask | UIDataDetectorTypePhoneNumber;
+	if(detectLink)
+		mask = mask | UIDataDetectorTypeLink;
+	if(detectAddress)
+		mask = mask | UIDataDetectorTypeAddress;
+	if(detectCalendarEvent)
+		mask = mask | UIDataDetectorTypeCalendarEvent;
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
-	webView.detectsPhoneNumbers = [detectNumber boolValue];
+	webView.dataDetectorTypes = mask;
 #endif
 
+	
 	/*
 	 * imageView - is the Default loading screen, it stay up until the app and UIWebView (WebKit) has completly loaded.
 	 * You can change this image by swapping out the Default.png file within the resource folder.
