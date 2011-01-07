@@ -4,7 +4,7 @@
  * 
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
-* Copyright (c) 2011, Giant Leap Technologies AS
+ * Copyright (c) 2011, Giant Leap Technologies AS
  */
 
 
