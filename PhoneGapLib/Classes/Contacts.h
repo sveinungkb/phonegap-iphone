@@ -55,6 +55,10 @@
  */
 - (void) displayContact:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 
+- (void) search:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+- (void) save:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+- (void) remove: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+
 /*
  * chooseContact
  *	
@@ -63,10 +67,6 @@
  * options:
  *	allowsEditing: set to true to not choose the contact, but to edit it in the iPhone contact editor
  */
-
-- (void) search:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
-- (void) save:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
-- (void) remove: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 - (void) chooseContact:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 - (void) newPersonViewController:(ABNewPersonViewController *)newPersonViewController didCompleteWithNewPerson:(ABRecordRef)person;
 - (BOOL) personViewController:(ABPersonViewController *)personViewController shouldPerformDefaultActionForPerson:(ABRecordRef)person 
