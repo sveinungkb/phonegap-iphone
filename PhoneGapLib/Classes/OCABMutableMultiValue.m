@@ -73,4 +73,18 @@
 	return json;
 }
 
+- (NSString*) valuesAsString{
+	if ([self count] == 0) {
+		return @"";
+	}
+	NSMutableString * values = [[NSMutableString alloc] init];
+	CFIndex count = [self count];
+	
+	for (CFIndex i=0; i<count; i++) {
+		[values appendFormat:(i+1) < count ? @"%@," : @"%@", [self valueAt:i]];
+	}
+	
+	return [values autorelease];
+}
+
 @end

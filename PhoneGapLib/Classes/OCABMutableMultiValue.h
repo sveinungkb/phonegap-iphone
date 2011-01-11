@@ -20,5 +20,7 @@
 - (BOOL) addValue:(CFTypeRef)value withLabel:(CFStringRef)label;
 
 - (NSString*) JSONValue;
+// Commaseparated string containing all values.
+- (NSString*) valuesAsString;
 
 @end

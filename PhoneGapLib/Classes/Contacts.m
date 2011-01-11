@@ -311,7 +311,7 @@
 		jsCallback = [arguments objectAtIndex:0];
 	} else {
 		bError = TRUE;
-		NSLog(@"Contacts.chooseContact: Missing success callback parameter.");
+		NSLog(@"Contacts.search: Missing success callback parameter.");
 		errCode = INVALID_ARGUMENT_ERROR;
 		jsString = [NSString stringWithFormat:@"%@(%@);", jsErrCallback, errCode];
 		[webView stringByEvaluatingJavaScriptFromString:jsString];
@@ -327,9 +327,8 @@
 	NSDictionary* findOptions = [options valueForKey:@"findOptions"];
 	
 	ABAddressBookRef  addrBook = nil;
-	NSArray* foundRecords = nil;
+	NSMutableArray* foundRecords = nil;
 	
-
 	addrBook = ABAddressBookCreate();
 	// get the findOptions values
 	BOOL multiple = YES; // default is true
@@ -369,19 +368,42 @@
 		
 	if (!filter || [filter isEqualToString:@""]){ 
 		// get all records - use fields to determine what properties to return
-		foundRecords = (NSArray*)ABAddressBookCopyArrayOfAllPeople(addrBook);
+		foundRecords = [[NSMutableArray arrayWithArray:(NSArray*)ABAddressBookCopyArrayOfAllPeople(addrBook)] retain];
 	}else {
-		// currently we can search for names only
-		//NSString* fieldsStr = [fields isKindOfClass:[NSNull class]] ? nil :[fields componentsJoinedByString:@" "];
-		//if (fieldsStr && ([fieldsStr rangeOfString:kW3ContactName].location != NSNotFound)){
-			// search by name
-			foundRecords =  (NSArray*)ABAddressBookCopyPeopleWithName(addrBook, (CFStringRef)filter);
-			
-		//} //else {
-			// use a predicate
-			//[foundRecords filteredArrayUsingPredicate:xxx]
-			
+		foundRecords = [[NSMutableArray alloc] init];
+		
+		CFArrayRef allPeople = ABAddressBookCopyArrayOfAllPeople(addrBook);
+		CFIndex nPeople = ABAddressBookGetPersonCount(addrBook);
+		
+		if (allPeople && nPeople > 0) {
+			OCABRecord * currentRecord = nil;
+			ABRecordRef recordRef = nil;
+			for (int i = 0; i < nPeople; i++) {
+				recordRef = (ABRecordRef) CFArrayGetValueAtIndex(allPeople, i);
+				currentRecord = [[OCABRecord alloc] initWithCFTypeRef:recordRef];
+				
+				// filter by name
+				if ([[currentRecord compositeName] rangeOfString:filter options:NSCaseInsensitiveSearch].location != NSNotFound) {
+					
+					 [foundRecords addObject:recordRef];
+				}
+				
+				// filter by phone number
+				else if ([[[currentRecord phoneNumbers] valuesAsString] rangeOfString:filter options:NSCaseInsensitiveSearch].location != NSNotFound) {
+					[foundRecords addObject:recordRef];
+				}
+				
+				// filter by email
+				else if ([[[currentRecord emails] valuesAsString] rangeOfString:filter options:NSCaseInsensitiveSearch].location != NSNotFound) {
+					[foundRecords addObject:recordRef];
+				}
+				
+				[currentRecord release];
+			}
+		}
 	}
+	
+	
 	NSMutableArray* returnContacts = [NSMutableArray arrayWithCapacity:1];
 	if (foundRecords){
 		NSMutableDictionary* returnFields = [[Contact class] calcReturnFields: fields];
@@ -413,9 +435,8 @@
 
 	}
 
-	if (foundRecords){
-		CFRelease(foundRecords);  
-	}
+	[foundRecords release]; 
+										 
 	if(addrBook){
 		CFRelease(addrBook);
 	}
