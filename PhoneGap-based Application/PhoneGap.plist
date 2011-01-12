@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>StartURL</key>
+	<string></string>
+	<key>DetectLink</key>
+	<false/>
+	<key>DetectAddress</key>
+	<false/>
+	<key>DetectCalendarEvent</key>
+	<false/>
 	<key>DetectPhoneNumber</key>
 	<true/>
 	<key>TopActivityIndicator</key>
