@@ -4,6 +4,7 @@
  * 
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
+ * Copyright (c) 2011, Giant Leap Technologies AS
  */
 
 #import "PhoneGapDelegate.h"
@@ -41,11 +42,6 @@
 + (NSString*) wwwFolderName
 {
 	return @"www";
-}
-
-+ (NSString*) startPage
-{
-	return @"index.html";
 }
 
 + (NSString*) pathForResource:(NSString*)resourcepath
@@ -232,14 +228,18 @@ static NSString *gapVersion;
 	/*
 	 * webView
 	 * This is where we define the inital instance of the browser (WebKit) and give it a starting url/file.
+	 * Use key StartURL of type String in PhoneGap.plist to open an arbitrary URL
 	 */
+	NSURL * appURL = nil;
 	
-	NSString* startPage = [[self class] startPage];
-	NSURL *appURL = [NSURL URLWithString:startPage];
-	if(![appURL scheme])
-	{
-		appURL = [NSURL fileURLWithPath:[[self class] pathForResource:startPage]];
+	// Check for URL in PhoneGap.plist
+	if ([settings objectForKey:@"StartURL"]) {
+		appURL = [NSURL URLWithString:[settings objectForKey:@"StartURL"]];
 	}
+	// Use default (www/index.html)
+	else {
+		appURL = [NSURL fileURLWithPath:[[self class] pathForResource:@"index.html"]];
+	}	
 	
     NSURLRequest *appReq = [NSURLRequest requestWithURL:appURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:20.0];
 	[webView loadRequest:appReq];
